@@ -11,9 +11,10 @@ struct GoalAddView: View {
     @Environment(\.modelContext) var modelContext
     @Environment(\.dismiss) var dismiss
     
+    let selectedDay: Int
+    
     @State private var title: String = ""
     @State private var habitDescription: String = ""
-    @State private var weekdays: [Int] = []
     @State private var isNotificationEnabled: Bool = false
     @State private var notificationTime: Date = Date()
     
@@ -21,11 +22,7 @@ struct GoalAddView: View {
     let weekdaysKor = ["일", "월", "화", "수", "목", "금", "토"]
     
     var isSaveEnabled: Bool {
-        if isNotificationEnabled {
-            return !title.isEmpty && !habitDescription.isEmpty && !weekdays.isEmpty
-        } else {
-            return false
-        }
+        return !title.isEmpty && !habitDescription.isEmpty
     }
     
     var body: some View {
@@ -40,20 +37,10 @@ struct GoalAddView: View {
                         Toggle("알람 활성화", isOn: $isNotificationEnabled)
                             .tint(mainColor)
                         if isNotificationEnabled {
-                            HStack(spacing: 10) {
-                                ForEach(0..<7) { idx in
-                                    Button(action: {
-                                        toggleWeekday(idx + 1)
-                                    }) {
-                                        Text(weekdaysKor[idx])
-                                            .font(.body)
-                                            .frame(width: 36, height: 36)
-                                            .foregroundColor(weekdays.contains(idx + 1) ? .white : .gray)
-                                            .background(weekdays.contains(idx + 1) ? mainColor : Color.gray.opacity(0.2))
-                                            .clipShape(Circle())
-                                    }
-                                    .buttonStyle(.plain)
-                                }
+                            HStack {
+                                Text("선택된 요일: \(weekdaysKor[selectedDay-1])")
+                                    .foregroundColor(.gray)
+                                Spacer()
                             }
                             DatePicker("알람 시간", selection: $notificationTime, displayedComponents: .hourAndMinute)
                                 .labelsHidden()
@@ -62,7 +49,7 @@ struct GoalAddView: View {
                     }
                 }
                 .navigationTitle("목표 설정하기")
-                .toolbar {
+                .toolbar { 
                     ToolbarItem(placement: .navigationBarLeading) {
                         Button("Cancel") { dismiss() }
                     }
@@ -79,30 +66,20 @@ struct GoalAddView: View {
         }
     }
     
-    func toggleWeekday(_ day: Int) {
-        if weekdays.contains(day) {
-            weekdays.removeAll { $0 == day }
-        } else {
-            weekdays.append(day)
-        }
-    }
-    
     func saveGoal() {
         let newGoal = GoalList(
             timestamp: Date(),
             title: title,
             habitDescription: habitDescription,
-            weekdays: weekdays,
+            weekdays: [selectedDay],  // Only use the selected day
             isNotificationEnabled: isNotificationEnabled,
             notificationTime: isNotificationEnabled ? notificationTime : nil
         )
         
         modelContext.insert(newGoal)
-        
     }
-    
 }
 
 #Preview {
-    GoalAddView()
+    GoalAddView(selectedDay: 1)
 }

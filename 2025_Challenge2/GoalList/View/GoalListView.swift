@@ -119,9 +119,10 @@ struct GoalListView: View {
         }
         .background(Color(.systemGray6))
         .ignoresSafeArea(edges: .top)
-        .sheet(isPresented: $showingAddGoalListView) { 
-            GoalAddView()
+        .sheet(isPresented: $showingAddGoalListView) {
+            GoalAddView(selectedDay: selectedDay)
         }
+
         .onAppear {
             resetGoalsAtMidnight()
         }
@@ -175,11 +176,9 @@ struct GoalListView: View {
             }
         }
     }
-
-    
 }
-
 
 #Preview {
     GoalListView()
+        .modelContainer(for: GoalList.self, inMemory: true)
 }
