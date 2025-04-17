@@ -15,23 +15,20 @@ final class GoalList: ObservableObject {
     var title: String
     var habitDescription: String
     var weekdays: [Int]
-    var startTime: Date?
-    var endTime: Date?
     var isNotificationEnabled: Bool
     var notificationTime: Date?
     var isCompleted: Bool?
+    var lastCheckedDate: Date? 
     
-    init(timestamp: Date, title: String, habitDescription: String, weekdays: [Int], startTime: Date? = nil, endTime: Date? = nil, isNotificationEnabled: Bool = false, notificationTime: Date? = nil, isCompleted: Bool? = nil) {
+    init(timestamp: Date, title: String, habitDescription: String, weekdays: [Int], isNotificationEnabled: Bool = false, notificationTime: Date? = nil, isCompleted: Bool? = nil, lastCheckedDate: Date? = nil) {
         self.id = UUID()
         self.timestamp = timestamp
         self.title = title
         self.habitDescription = habitDescription
         self.weekdays = weekdays
-        self.startTime = startTime
-        self.endTime = endTime
         self.isNotificationEnabled = isNotificationEnabled
         self.notificationTime = notificationTime
         self.isCompleted = isCompleted
+        self.lastCheckedDate = lastCheckedDate
     }
-    
 }
