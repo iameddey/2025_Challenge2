@@ -40,12 +40,17 @@ struct GoalListView: View {
                 .padding(.top, 16)
             
             HStack {
-                Text("나의 하루")
+                Text(todayString)
                     .font(.system(size: 28, weight: .bold))
                 Spacer()
-                Text(todayString)
-                    .font(.system(size: 16, weight: .medium))
-                    .foregroundColor(.black)
+                Button(action: {
+                    showingAddGoalListView = true
+                }) {
+                    Image(systemName: "plus")
+                        .font(.system(size: 20, weight: .medium))
+                        .foregroundColor(mainColor)
+                }
+                .padding(.trailing, 16)
             }
             .padding(.horizontal, 32)
             .padding(.top, 8)
@@ -69,15 +74,7 @@ struct GoalListView: View {
             
             HStack {
                 Spacer()
-                Button(action: {
-                    showingAddGoalListView = true
-                }) {
-                    Text("추가하기")
-                        .font(.system(size: 14, weight: .medium))
-                        .foregroundColor(mainColor)
-                }
-                .padding(.trailing, 32)
-                .padding(.top, 15)
+               
             }
             
             if filteredItems.isEmpty {

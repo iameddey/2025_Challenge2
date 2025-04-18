@@ -22,6 +22,7 @@ struct GoalAddView: View {
     let mainColor = Color(red: 0.965, green: 0.773, blue: 0.373)
     let weekdaysKor = ["일", "월", "화", "수", "목", "금", "토"]
     
+    
     var isSaveEnabled: Bool {
         return !title.isEmpty && !habitDescription.isEmpty
     }
