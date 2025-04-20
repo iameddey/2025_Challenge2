@@ -10,7 +10,7 @@ import SwiftData
 
 @Model
 final class GoalList: ObservableObject {
-    var id: UUID
+    @Attribute(.unique) var id: UUID
     var timestamp: Date
     var title: String
     var habitDescription: String
