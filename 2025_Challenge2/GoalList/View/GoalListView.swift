@@ -4,32 +4,38 @@
 //
 //  Created by 김재윤 on 4/16/25.
 //
+
 import SwiftUI
 import SwiftData
+import WidgetKit
 
 struct GoalListView: View {
     @Environment(\.modelContext) var modelContext
     @Query var items: [GoalList]
 
     @State private var showingAddGoalListView = false
-    
-//    @State private var selectedDay: Int = Calendar.current.component(.weekday, from: Date())
-    
     @State private var selectedDay: WeekEnum = WeekEnum.from(date: Date())
-
+    
     var filteredItems: [GoalList] {
-        items.filter { $0.weekdays.contains(selectedDay.rawValue) }
+        let filtered = items.filter { goalList in
+            goalList.weekdays.contains(selectedDay.rawValue)
+        }
+        
+        return filtered.sorted { item1, item2 in
+            if (item1.isCompleted ?? false) && !(item2.isCompleted ?? false) {
+                return true
+            }
+            else if !(item1.isCompleted ?? false) && (item2.isCompleted ?? false) {
+                return false
+            }
+            else {
+                return false
+            }
+        }
     }
-
-    let weekdays = ["일", "월", "화", "수", "목", "금", "토"]
-
-    var todayString: String {
-        let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "ko_KR")
-        formatter.dateFormat = "M월 d일 (E)"
-        return formatter.string(from: Date())
-    }
-
+    
+    private let notiManager = NotificationManager()
+    
     var body: some View {
         VStack(spacing: 0) {
             Image("HomeBackGroundImg")
@@ -39,7 +45,7 @@ struct GoalListView: View {
                 .padding(.top, 16)
 
             HStack {
-                Text(todayString)
+                Text(DateFormatter.koreanDateFormatter.string(from: Date()))
                     .font(.system(size: 28, weight: .bold))
                 Spacer()
                 Button(action: {
@@ -86,7 +92,7 @@ struct GoalListView: View {
                                 toggleItemCompletion(item)
                             }) {
                                 Image(systemName: (item.isCompleted ?? false) ? "checkmark.circle.fill" : "circle")
-                                    .foregroundColor((item.isCompleted ?? false) ? Color.mainColor : .gray)
+                                    .foregroundColor((item.isCompleted ?? false) ? Color.subColor : .gray)
                                     .font(.system(size: 24))
                             }
                             .buttonStyle(PlainButtonStyle())
@@ -95,10 +101,15 @@ struct GoalListView: View {
                                 .font(.system(size: 16))
                                 .strikethrough(item.isCompleted ?? false)
                                 .foregroundColor((item.isCompleted ?? false) ? .gray : .primary)
+                            
+                            
                         }
                         .padding(.vertical, 4)
+                        
                     }
                     .onDelete(perform: deleteItems)
+                    .listRowBackground(Color(.systemGray6))
+
                 }
                 .listStyle(.plain)
                 .padding(.top, 20)
@@ -131,15 +142,19 @@ struct GoalListView: View {
             for item in itemsToDelete {
                 if let index = items.firstIndex(where: { $0.id == item.id }) {
                     modelContext.delete(items[index])
+                    notiManager.checkScheduledNotifications()
                 }
             }
             do {
                 try modelContext.save()
+                // TODO: 나중에 없애야 함
+                notiManager.cancelAllNotifications()
             } catch {
                 print("Failed to delete item: \(error.localizedDescription)")
             }
         }
     }
+    
 
     private func resetGoalsAtMidnight() {
         let todayStart = Calendar.current.startOfDay(for: Date())

@@ -5,6 +5,8 @@
 //  Created by 김재윤 on 4/16/25.
 //
 import SwiftUI
+import WidgetKit
+import SwiftData
 
 struct GoalAddView: View {
     @Environment(\.modelContext) var modelContext
@@ -15,9 +17,10 @@ struct GoalAddView: View {
     @State private var title: String = ""
     @State private var habitDescription: String = ""
     @State private var weekdays: [Int] = []
+    
     @State private var isNotificationEnabled: Bool = false
     @State private var notificationTime: Date = Date()
-        
+    
     var isSaveEnabled: Bool {
         return !title.isEmpty && !habitDescription.isEmpty
     }
@@ -47,7 +50,7 @@ struct GoalAddView: View {
                         HStack(spacing: 10) {
                             ForEach(WeekEnum.allCases, id: \.self) { week in
                                 let day = week.rawValue
-                        
+                                
                                 Button(action: {
                                     if day != selectedDay {
                                         toggleWeekday(day)
@@ -77,8 +80,8 @@ struct GoalAddView: View {
                             Spacer()
                         }
                     }
-                    Section(header: Text("알람 설정하기")) {
-                        Toggle("알람 활성화", isOn: $isNotificationEnabled)
+                    Section(header: Text("알림 설정하기")) {
+                        Toggle("알림 활성화", isOn: $isNotificationEnabled)
                             .tint(Color.mainColor)
                         if isNotificationEnabled {
                             DatePicker("알람 시간", selection: $notificationTime, displayedComponents: .hourAndMinute)
@@ -104,18 +107,28 @@ struct GoalAddView: View {
         }
     }
     
+    // TODO: 모든 요일에 하나씩 넣을 수 있도록 포문 돌리기 !
+    // GoalAddView.swift의 saveGoal 함수 수정
     func saveGoal() {
         let allSelectedDays = (weekdays + [selectedDay]).unique().sorted()
+        for day in allSelectedDays {
+            let newGoal = GoalList(
+                timestamp: Date(),
+                title: title,
+                habitDescription: habitDescription,
+                weekdays: [day],
+                isNotificationEnabled: isNotificationEnabled,
+                notificationTime: isNotificationEnabled ? notificationTime : nil
+            )
+            
+            modelContext.insert(newGoal)
+            if isNotificationEnabled {
+                NotificationManager.instance.scheduleNotification(for: newGoal)
+            }
+        }
+        // 체킹용
+        NotificationManager.instance.checkScheduledNotifications()
         
-        let newGoal = GoalList(
-            timestamp: Date(),
-            title: title,
-            habitDescription: habitDescription,
-            weekdays: allSelectedDays,
-            isNotificationEnabled: isNotificationEnabled,
-            notificationTime: isNotificationEnabled ? notificationTime : nil
-        )
-        modelContext.insert(newGoal)
     }
     
     func toggleWeekday(_ day: Int) {
@@ -125,6 +138,7 @@ struct GoalAddView: View {
             weekdays.append(day)
         }
     }
+
 }
 
 extension Array where Element: Hashable {
