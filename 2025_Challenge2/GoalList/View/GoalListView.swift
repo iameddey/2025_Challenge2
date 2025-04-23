@@ -148,7 +148,7 @@ struct GoalListView: View {
             do {
                 try modelContext.save()
                 // TODO: 나중에 없애야 함
-                notiManager.cancelAllNotifications()
+//                notiManager.cancelAllNotifications()
             } catch {
                 print("Failed to delete item: \(error.localizedDescription)")
             }

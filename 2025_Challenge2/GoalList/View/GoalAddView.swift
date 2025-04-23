@@ -107,10 +107,10 @@ struct GoalAddView: View {
         }
     }
     
-    // TODO: 모든 요일에 하나씩 넣을 수 있도록 포문 돌리기 !
-    // GoalAddView.swift의 saveGoal 함수 수정
+    
     func saveGoal() {
         let allSelectedDays = (weekdays + [selectedDay]).unique().sorted()
+        
         for day in allSelectedDays {
             let newGoal = GoalList(
                 timestamp: Date(),

@@ -13,9 +13,7 @@ import CoreLocation
 
 class NotificationManager {
     static let instance = NotificationManager()
-    
-//    private init() {}
-    
+        
     func requestAuthorization() {
         let options: UNAuthorizationOptions = [.alert, .sound, .badge]
         UNUserNotificationCenter.current().requestAuthorization(options: options) { granted, error in
@@ -52,34 +50,6 @@ class NotificationManager {
         
         let request = UNNotificationRequest(
             identifier: goal.id.uuidString,
-            content: content,
-            trigger: trigger
-        )
-        
-        UNUserNotificationCenter.current().add(request) { error in
-            if let error = error {
-                print("Error scheduling notification: \(error.localizedDescription)")
-            }
-        }
-    }
-    
-    // 커스텀 알림을 위한 메서드 (필요시 사용)
-    func scheduleCustomNotification(title: String, body: String, weekday: Int, hour: Int, minute: Int) {
-        let content = UNMutableNotificationContent()
-        content.title = title
-        content.body = body
-        content.sound = .default
-        content.badge = 1
-        
-        var dateComponents = DateComponents()
-        dateComponents.hour = hour
-        dateComponents.minute = minute
-        dateComponents.weekday = weekday
-        
-        let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: true)
-        
-        let request = UNNotificationRequest(
-            identifier: UUID().uuidString,
             content: content,
             trigger: trigger
         )
